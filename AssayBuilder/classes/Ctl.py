@@ -1,0 +1,71 @@
+#! /usr/bin/env python3
+
+class Ctl(object):
+    """
+    """
+    
+    def __init__(self, file):
+        self.file = file
+        self.replicate_plates = 1
+        self.plate_barcodes = []
+        self.layers = {}
+        self.source_plates = []
+        self.randomization_scheme = None
+        self.raw_text = ''
+        self.notes = ''
+        self.max_replicates = 1000000
+
+        self.parse_file()
+
+    def parse_file(self):
+        
+        with open(self.file, 'r') as f:
+            for line in f:
+                self.raw_text += line
+                line = line.rstrip()
+                
+                if 'plate_replicates:' in line:
+                    self.replicates = int(line.split(':')[1])
+                
+                if 'plates_per_replicate:' in line:
+                    self.platesper = 1 # fix in future versions
+                    # self.platesper = int(line.split(':')[1])
+                
+                if 'plate_barcodes' in line:
+                    self.plate_barcodes = line.split(':')[1].split(',')
+                
+                if 'layer_names' in line:
+                    self.layer_keys = line.split(':')[1].split(',')
+                    for key in self.layer_keys:
+                        self.layers[key] = {
+                            'source' : 'default',
+                            'id' : 'all',
+                            'vol' : 'default',
+                            }
+                if 'source_plates' in line:
+                    self.source_plates = line.split(':')[1].split(',')
+                
+                if 'layer_reagent_mix' in line:
+                    layers = line.split(':')[1].split(',')
+                    layer_keys = [x.split('(')[0] for x in layers]
+                    for idx, key in enumerate(layer_keys):
+                        if key in self.layers:
+                            ent = layers[idx].split('(')[1].split(')')[0].split(';')
+                            for e in ent:
+                                self.layers[key][e.split('=')[0]] = e.split('=')[1]
+
+                if 'randomization_scheme' in line:
+                    self.randomization_scheme = line.split(':')[1]
+
+                if 'max_replicates:' in line:
+                    self.max_replicates = int(line.split(':')[1])
+                
+
+        
+        # set the defaults
+        for layer in self.layers:
+            if self.layers[layer]['source'] == 'default':
+                self.layers[layer]['source'] = self.source_plates[0]
+            if self.layers[layer]['vol'] == 'default':
+                self.layers[layer]['vol'] = 40
+        self.notes = '## notes' + self.raw_text.split('## notes')[1]
