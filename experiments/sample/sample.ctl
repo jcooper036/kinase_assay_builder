@@ -1,7 +1,7 @@
 ## Control file for sample experiment
 
 # experiment folder - where are the files?
-experiment_folder:/Users/jacob.cooper/kinase_assay/experiments/sample/
+experiment_folder:/Users/jacob.cooper/kinase_assay_builder/experiments/sample/
 
 # compound list (.txt) (relative to experiment folder path)
 compound_list:sample_compound_list_1.txt

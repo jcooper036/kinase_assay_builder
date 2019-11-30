@@ -6,14 +6,15 @@ class Ctl(object):
     
     def __init__(self, file):
         self.file = file
-        self.replicate_plates = 1
-        self.plate_barcodes = []
-        self.layers = {}
-        self.source_plates = []
-        self.randomization_scheme = None
         self.raw_text = ''
-        self.notes = ''
-        self.max_replicates = 1000000
+        self.folder = None
+        self.compounds = []
+        self.sp = []
+        self.dp = [] # this is a list of the names
+        self.dest_plates = {} # this is where we are going to put plate object
+        self.comp_per_well = 5
+        self.rep_per_comp = 5
+        self.exp_reps = 3
 
         self.parse_file()
 
@@ -24,48 +25,46 @@ class Ctl(object):
                 self.raw_text += line
                 line = line.rstrip()
                 
-                if 'plate_replicates:' in line:
-                    self.replicates = int(line.split(':')[1])
+                if 'experiment_folder:' in line:
+                    self.folder = str(line.split(':')[1])
+                    if self.folder[-1] != '/':
+                        self.folder += '/'
                 
-                if 'plates_per_replicate:' in line:
-                    self.platesper = 1 # fix in future versions
-                    # self.platesper = int(line.split(':')[1])
+                if 'compound_list:' in line:
+                    fi = self.folder + str(line.split(':')[1])
+                    with open(fi, 'r') as a:
+                        for l in a:
+                            l = l.rstrip()
+                            self.compounds.append(l)
                 
-                if 'plate_barcodes' in line:
-                    self.plate_barcodes = line.split(':')[1].split(',')
-                
-                if 'layer_names' in line:
-                    self.layer_keys = line.split(':')[1].split(',')
-                    for key in self.layer_keys:
-                        self.layers[key] = {
-                            'source' : 'default',
-                            'id' : 'all',
-                            'vol' : 'default',
-                            }
                 if 'source_plates' in line:
-                    self.source_plates = line.split(':')[1].split(',')
+                    fi = self.folder + str(line.split(':')[1])
+                    ent = []
+                    with open(fi, 'r') as a:
+                        for l in a:
+                            l = l.rstrip()
+                            ent.append(l)
+                    self.sp = ent[1:]
+                    self.sp = [x.split(',') for x in self.sp]
+
                 
-                if 'layer_reagent_mix' in line:
-                    layers = line.split(':')[1].split(',')
-                    layer_keys = [x.split('(')[0] for x in layers]
-                    for idx, key in enumerate(layer_keys):
-                        if key in self.layers:
-                            ent = layers[idx].split('(')[1].split(')')[0].split(';')
-                            for e in ent:
-                                self.layers[key][e.split('=')[0]] = e.split('=')[1]
+                if 'destination_plates' in line:
+                    if str(line.split(':')[1]) != 'none':
+                        fi = self.folder + str(line.split(':')[1])
+                        ent = []
+                        with open(fi, 'r') as a:
+                            for l in a:
+                                l = l.rstrip()
+                                ent.append(l)
+                        self.dp = ent[1:]
+                        self.dp = [x.split(',') for x in self.dp]
 
-                if 'randomization_scheme' in line:
-                    self.randomization_scheme = line.split(':')[1]
 
-                if 'max_replicates:' in line:
-                    self.max_replicates = int(line.split(':')[1])
+                if 'compounds_per_well' in line:
+                    self.comp_per_well = int(line.split(':')[1])
                 
-
-        
-        # set the defaults
-        for layer in self.layers:
-            if self.layers[layer]['source'] == 'default':
-                self.layers[layer]['source'] = self.source_plates[0]
-            if self.layers[layer]['vol'] == 'default':
-                self.layers[layer]['vol'] = 40
-        self.notes = '## notes' + self.raw_text.split('## notes')[1]
+                if 'replicate_per_compound' in line:
+                    self.rep_per_comp = int(line.split(':')[1])
+                
+                if 'experiment_repliates' in line:
+                    self.exp_reps = int(line.split(':')[1])
