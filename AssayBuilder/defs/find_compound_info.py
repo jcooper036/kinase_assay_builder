@@ -23,8 +23,8 @@ def find_compound_info(compound, s_plates, dest_plate):
     }
 
     for s in s_plates:
-        ent = s_plates[s].loc[s_plates[s]['reagent_id'] == compound]
-        if ent['reagent_id'].values:
+        ent = s_plates[s].loc[s_plates[s]['rec_id'] == compound]
+        if len(ent['rec_id'].values) != 0:
             info['Source'] = s.split(';')[0]
             info['Source Plate Barcode'] = s.split(';')[1]
             info['Source Well'] = ent['address'].values[0]

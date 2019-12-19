@@ -68,3 +68,6 @@ class Ctl(object):
                 
                 if 'experiment_repliates' in line:
                     self.exp_reps = int(line.split(':')[1])
+                
+                if 'transfer_volume:' in line:
+                    self.transfer_vol = float(line.split(':')[1])

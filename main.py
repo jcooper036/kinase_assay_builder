@@ -27,7 +27,8 @@ if __name__ == "__main__":
     ### check the compound list against the things in the source plates
     sp_compounds = []
     for sp in s_plates:
-        sp_compounds += list(s_plates[sp]['reagent_id'].values)
+        # sp_compounds += list(s_plates[sp]['reagent_id'].values)
+        sp_compounds += list(s_plates[sp]['rec_id'].values)
     sp_compounds = set(sp_compounds)
     missing_compounds = [x for x in ctl.compounds if x not in sp_compounds]
     if missing_compounds:
@@ -42,11 +43,11 @@ if __name__ == "__main__":
     ### knowing the total number of plates, randomize the order of the wells in those plates
     for i in range(plates_per_exp):
         if not ctl.dp:
-            ctl.dest_plates[str(i)+';'+str(i)] = asb.Plate()
+            ctl.dest_plates[str(i)+';'+str(i)] = asb.Plate(ctl)
             ctl.dest_plates[str(i)+';'+str(i)].name = str(i)
             ctl.dest_plates[str(i)+';'+str(i)].barcode = str(i)
         else:
-            ctl.dest_plates[ctl.dp[i][0]+';'+ctl.dp[i][1]] = asb.Plate()
+            ctl.dest_plates[ctl.dp[i][0]+';'+ctl.dp[i][1]] = asb.Plate(ctl)
             ctl.dest_plates[ctl.dp[i][0]+';'+ctl.dp[i][1]].name = ctl.dp[i][0]
             ctl.dest_plates[ctl.dp[i][0]+';'+ctl.dp[i][1]].barcode = ctl.dp[i][1]
 
@@ -77,7 +78,7 @@ if __name__ == "__main__":
                     vals.append(ent)
     
     ### write the csv
-    file = ctl.folder + 'picklist.csv'
+    file = ctl.folder + ctl.folder[:-1].split('/')[-1] + '_picklist.csv'
     with open(file, 'w') as f:
         f.write(','.join(header))
         f.write('\n')

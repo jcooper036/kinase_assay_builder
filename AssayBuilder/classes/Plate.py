@@ -8,13 +8,14 @@ class Plate(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, ctl):
 
         self.rows = {}
         self.cols = {}
         self.wells = {}
         self.name = None
         self.barcode = None
+        self.ctl = ctl # control object, so it can pull info from this
 
         for r in base_rows:
             self.rows[r] = {
@@ -41,7 +42,7 @@ class Plate(object):
         self.wells[well][compound]['Destination'] = self.name
         self.wells[well][compound]['Destination Plate Barcode'] = self.barcode
         self.wells[well][compound]['Destination Well'] = well
-        self.wells[well][compound]['Transfer Volume'] = 40
+        self.wells[well][compound]['Transfer Volume'] = self.ctl.transfer_vol
 
 
 base_rows = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB','AC','AD','AE']
